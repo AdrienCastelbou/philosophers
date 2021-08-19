@@ -8,6 +8,11 @@ typedef struct	s_philo {
 		int				id;
 		pthread_mutex_t	*l_fork;
 		pthread_mutex_t	*r_fork;
+		long int		t_die;
+		long int		t_eat;
+		long int		t_sleep;
+		int				must_eat;
+		int				t_must_eat;
 		int				*finish;
 		struct s_philo	*next;
 		struct s_philo	*prev;
@@ -58,11 +63,17 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 		philo->l_fork = philo->prev->r_fork;
 	philo->r_fork = &fork;
 	philo->finish = first_phil->finish;
+	philo->t_die = first_phil->t_die;
+	philo->t_eat = first_phil->t_eat;
+	philo->t_sleep = first_phil->t_sleep;
+	philo->must_eat = first_phil->must_eat;
+	if (philo->must_eat)
+		philo->t_must_eat = first_phil->t_must_eat;
 	philo->next = set_philos(philo, id + 1, nb, first_phil);
 	return (philo);
 }
 
-t_philo	*set_first_philo(void)
+t_philo	*set_first_philo(int nb_params, char **params)
 {
 	t_philo			*philo;
 	pthread_mutex_t	fork;
@@ -74,8 +85,17 @@ t_philo	*set_first_philo(void)
 	philo->prev = NULL;
 	philo->r_fork = &fork;
 	philo->next = NULL;
+	philo->must_eat = 0;
 	is_finish = 0;
 	philo->finish = &is_finish;
+	philo->t_die = ft_atoli(params[0]);
+	philo->t_eat = ft_atoli(params[1]);
+	philo->t_sleep = ft_atoli(params[2]);
+	if (nb_params == 6)
+	{
+		philo->t_must_eat = ft_atoli(params[3]);
+		philo->must_eat = 1;
+	}
 	return (philo);
 }
 
@@ -87,7 +107,6 @@ void	free_philos(t_philo *philo, int philos_nb)
 	i = 0;
 	while (i < philos_nb)
 	{
-		printf("%d\n", i);
 		next = philo->next;
 		free(philo);
 		philo = NULL;
@@ -101,10 +120,10 @@ int	main(int ac, char **av)
 	int				philos_nb;
 	t_philo			*philo;
 
-	if (ac < 2)
+	if (ac < 5 || ac > 6)
 		return (1);
 	philos_nb = (int) ft_atoli(av[1]);
-	philo = set_first_philo();
+	philo = set_first_philo(ac, &av[2]);
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	int one;
 	t_philo *current;
@@ -115,10 +134,11 @@ int	main(int ac, char **av)
 	{
 		one = 1;
 		printf("For %d\n", current->id);
-		if (current->l_fork == current->prev->r_fork && current->r_fork == current->next->l_fork)
-			printf("Forks are good shared\n");
+		printf("t_die : %ld, t_eat : %ld, t_sleep : %ld\n", current->t_die, current->t_eat, current->t_sleep);
+		if (current->must_eat)
+			printf("Must eat %d times\n", current->t_must_eat);
 		else
-			printf("Bad share\n");
+			printf("No imperaitves\n");
 		printf("-------\n");
 		current = current->next;
 	}
