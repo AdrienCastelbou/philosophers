@@ -8,9 +8,10 @@ typedef struct	s_philo {
 		int				id;
 		pthread_mutex_t	*l_fork;
 		pthread_mutex_t	*r_fork;
-		long long int		t_die;
-		long long int		t_eat;
-		long long int		t_sleep;
+		long long int	t_die;
+		long long int	t_eat;
+		long long int	t_sleep;
+		long long int	t_satiate;
 		int				must_eat;
 		int				t_must_eat;
 		int				*finish;
@@ -129,23 +130,15 @@ int	main(int ac, char **av)
 {
 	int				philos_nb;
 	t_philo			*philo;
+	pthread_t		*threads;
 
 	if (ac < 5 || ac > 6)
 		return (1);
 	philos_nb = (int) ft_atolli(av[1]);
 	philo = set_first_philo(ac, &av[2]);
 	philo->next = set_philos(philo, 2, philos_nb, philo);
-	/*	int one;
-	t_philo *current;
-
-	current = philo;
-	one = 0;
-	while (current->id != 1 || one == 0)
-	{
-		one = 1;
-		printf("For %d\n", current->id);
-		printf("-------\n");
-		current = current->next;
-	}*/
+	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
+		return (1);
 	free_philos(philo, philos_nb);
+	free(threads);
 }
