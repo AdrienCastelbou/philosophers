@@ -8,9 +8,9 @@ typedef struct	s_philo {
 		int				id;
 		pthread_mutex_t	*l_fork;
 		pthread_mutex_t	*r_fork;
-		long int		t_die;
-		long int		t_eat;
-		long int		t_sleep;
+		long long int		t_die;
+		long long int		t_eat;
+		long long int		t_sleep;
 		int				must_eat;
 		int				t_must_eat;
 		int				*finish;
@@ -19,9 +19,9 @@ typedef struct	s_philo {
 }				t_philo;
 
 
-long int	ft_atoli(char *s)
+long int	ft_atolli(char *s)
 {
-	long int result;
+	long long int result;
 	int		i;
 	int		sign;
 
@@ -88,12 +88,12 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	philo->must_eat = 0;
 	is_finish = 0;
 	philo->finish = &is_finish;
-	philo->t_die = ft_atoli(params[0]);
-	philo->t_eat = ft_atoli(params[1]);
-	philo->t_sleep = ft_atoli(params[2]);
+	philo->t_die = ft_atolli(params[0]);
+	philo->t_eat = ft_atolli(params[1]);
+	philo->t_sleep = ft_atolli(params[2]);
 	if (nb_params == 6)
 	{
-		philo->t_must_eat = ft_atoli(params[3]);
+		philo->t_must_eat = ft_atolli(params[3]);
 		philo->must_eat = 1;
 	}
 	return (philo);
@@ -115,6 +115,16 @@ void	free_philos(t_philo *philo, int philos_nb)
 	}
 }
 
+long long int	get_time()
+{
+	struct timeval	current_time;
+	long long int	time;
+
+	gettimeofday(&current_time, NULL);
+	time = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
+	return (time);
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
@@ -122,10 +132,10 @@ int	main(int ac, char **av)
 
 	if (ac < 5 || ac > 6)
 		return (1);
-	philos_nb = (int) ft_atoli(av[1]);
+	philos_nb = (int) ft_atolli(av[1]);
 	philo = set_first_philo(ac, &av[2]);
 	philo->next = set_philos(philo, 2, philos_nb, philo);
-	int one;
+	/*	int one;
 	t_philo *current;
 
 	current = philo;
@@ -134,13 +144,8 @@ int	main(int ac, char **av)
 	{
 		one = 1;
 		printf("For %d\n", current->id);
-		printf("t_die : %ld, t_eat : %ld, t_sleep : %ld\n", current->t_die, current->t_eat, current->t_sleep);
-		if (current->must_eat)
-			printf("Must eat %d times\n", current->t_must_eat);
-		else
-			printf("No imperaitves\n");
 		printf("-------\n");
 		current = current->next;
-	}
+	}*/
 	free_philos(philo, philos_nb);
 }
