@@ -79,6 +79,23 @@ t_philo	*set_first_philo(void)
 	return (philo);
 }
 
+void	free_philos(t_philo *philo, int philos_nb)
+{
+	t_philo	*next;
+	int i;
+
+	i = 0;
+	while (i < philos_nb)
+	{
+		printf("%d\n", i);
+		next = philo->next;
+		free(philo);
+		philo = NULL;
+		philo = next;
+		i++;
+	}
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
@@ -105,4 +122,5 @@ int	main(int ac, char **av)
 		printf("-------\n");
 		current = current->next;
 	}
+	free_philos(philo, philos_nb);
 }
