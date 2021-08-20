@@ -3,11 +3,12 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/time.h>
-
+#include <string.h>
 typedef struct	s_philo {
 		int				id;
 		pthread_mutex_t	*l_fork;
 		pthread_mutex_t	*r_fork;
+		pthread_mutex_t	*write;
 		long long int	t_die;
 		long long int	t_eat;
 		long long int	t_sleep;
@@ -62,6 +63,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	philo->prev = prev;
 	if (philo->prev)
 		philo->l_fork = philo->prev->r_fork;
+	philo->write = first_phil->write;
 	philo->r_fork = &fork;
 	philo->finish = first_phil->finish;
 	philo->t_die = first_phil->t_die;
@@ -78,6 +80,7 @@ t_philo	*set_first_philo(int nb_params, char **params)
 {
 	t_philo			*philo;
 	pthread_mutex_t	fork;
+	pthread_mutex_t	write;
 	int				is_finish;
 
 	if (!(philo = malloc(sizeof(t_philo))))
@@ -85,6 +88,7 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	philo->id = 1;
 	philo->prev = NULL;
 	philo->r_fork = &fork;
+	philo->write = &write;
 	philo->next = NULL;
 	philo->must_eat = 0;
 	is_finish = 0;
@@ -125,20 +129,45 @@ long long int	get_time()
 	time = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
 	return (time);
 }
+char	s[2] = "a";
+
+void	*run_philo(void *v_philo)
+{
+	t_philo	*philo;
+
+	philo = v_philo;
+	pthread_mutex_lock(philo->write);
+	write(1, s, 1);
+	s[0] = s[0] + 1;
+	pthread_mutex_unlock(philo->write);
+	return (NULL);
+}
 
 int	main(int ac, char **av)
 {
 	int				philos_nb;
 	t_philo			*philo;
 	pthread_t		*threads;
+	int				i;
 
 	if (ac < 5 || ac > 6)
 		return (1);
 	philos_nb = (int) ft_atolli(av[1]);
 	philo = set_first_philo(ac, &av[2]);
 	philo->next = set_philos(philo, 2, philos_nb, philo);
+	pthread_mutex_init(philo->write, NULL);
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
+	i = -1;
+	while (++i < philos_nb)
+	{
+		pthread_create(&threads[i], NULL, &run_philo, philo);
+		philo = philo->next;
+	}
+	i = -1;
+	while (++i < philos_nb)
+		pthread_join(threads[i], NULL);
+	write(1, s, 1);
 	free_philos(philo, philos_nb);
 	free(threads);
 }
