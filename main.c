@@ -65,6 +65,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 		philo->l_fork = philo->prev->r_fork;
 	philo->write = first_phil->write;
 	philo->r_fork = &fork;
+	pthread_mutex_init(philo->r_fork, NULL);
 	philo->finish = first_phil->finish;
 	philo->t_die = first_phil->t_die;
 	philo->t_eat = first_phil->t_eat;
@@ -88,6 +89,8 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	philo->id = 1;
 	philo->prev = NULL;
 	philo->r_fork = &fork;
+	pthread_mutex_init(philo->r_fork, NULL);
+	pthread_mutex_init(&write, NULL);
 	philo->write = &write;
 	philo->next = NULL;
 	philo->must_eat = 0;
@@ -129,17 +132,14 @@ long long int	get_time()
 	time = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
 	return (time);
 }
-char	s[2] = "a";
 
 void	*run_philo(void *v_philo)
 {
 	t_philo	*philo;
 
 	philo = v_philo;
-	pthread_mutex_lock(philo->write);
-	write(1, s, 1);
-	s[0] = s[0] + 1;
-	pthread_mutex_unlock(philo->write);
+
+	pthread_mutex_init(philo->write, NULL);
 	return (NULL);
 }
 
@@ -155,7 +155,6 @@ int	main(int ac, char **av)
 	philos_nb = (int) ft_atolli(av[1]);
 	philo = set_first_philo(ac, &av[2]);
 	philo->next = set_philos(philo, 2, philos_nb, philo);
-	pthread_mutex_init(philo->write, NULL);
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
 	i = -1;
@@ -167,7 +166,6 @@ int	main(int ac, char **av)
 	i = -1;
 	while (++i < philos_nb)
 		pthread_join(threads[i], NULL);
-	write(1, s, 1);
 	free_philos(philo, philos_nb);
 	free(threads);
 }
