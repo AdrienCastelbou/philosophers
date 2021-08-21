@@ -158,7 +158,6 @@ int	main(int ac, char **av)
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
-	printf("%d\n", *philo->finish);
 	i = -1;
 	while (++i < philos_nb)
 	{
