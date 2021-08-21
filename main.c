@@ -59,6 +59,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	}
 	if (!(philo = malloc(sizeof(t_philo))))
 		return (NULL);
+	*first_phil->finish = 0;
 	philo->id = id;
 	philo->prev = prev;
 	if (philo->prev)
@@ -82,7 +83,6 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	t_philo			*philo;
 	pthread_mutex_t	fork;
 	pthread_mutex_t	write;
-	int				is_finish;
 
 	if (!(philo = malloc(sizeof(t_philo))))
 		return (NULL);
@@ -94,8 +94,9 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	philo->write = &write;
 	philo->next = NULL;
 	philo->must_eat = 0;
-	is_finish = 0;
-	philo->finish = &is_finish;
+	if (!(philo->finish = malloc(sizeof(int))))
+		return (NULL);
+	*philo->finish = 0;
 	philo->t_die = ft_atolli(params[0]);
 	philo->t_eat = ft_atolli(params[1]);
 	philo->t_sleep = ft_atolli(params[2]);
@@ -138,8 +139,8 @@ void	*run_philo(void *v_philo)
 	t_philo	*philo;
 
 	philo = v_philo;
-
-	pthread_mutex_init(philo->write, NULL);
+	
+	printf("%d\n", *philo->finish);
 	return (NULL);
 }
 
@@ -157,6 +158,7 @@ int	main(int ac, char **av)
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
+	printf("%d\n", *philo->finish);
 	i = -1;
 	while (++i < philos_nb)
 	{
