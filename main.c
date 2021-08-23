@@ -49,7 +49,6 @@ long int	ft_atolli(char *s)
 t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 {
 	t_philo			*philo;
-	pthread_mutex_t	fork;
 
 	if (id > nb)
 	{
@@ -65,7 +64,11 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	if (philo->prev)
 		philo->l_fork = philo->prev->r_fork;
 	philo->write = first_phil->write;
-	philo->r_fork = &fork;
+	if (!(philo->r_fork = malloc(sizeof(pthread_mutex_t))))
+	{
+		free(philo);
+		return (NULL);
+	}
 	pthread_mutex_init(philo->r_fork, NULL);
 	philo->finish = first_phil->finish;
 	philo->t_die = first_phil->t_die;
@@ -81,17 +84,24 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 t_philo	*set_first_philo(int nb_params, char **params)
 {
 	t_philo			*philo;
-	pthread_mutex_t	fork;
-	pthread_mutex_t	write;
 
 	if (!(philo = malloc(sizeof(t_philo))))
 		return (NULL);
 	philo->id = 1;
 	philo->prev = NULL;
-	philo->r_fork = &fork;
+	if (!(philo->r_fork = malloc(sizeof(pthread_mutex_t))))
+	{
+		free(philo);
+		return (NULL);
+	}
 	pthread_mutex_init(philo->r_fork, NULL);
-	pthread_mutex_init(&write, NULL);
-	philo->write = &write;
+	if (!(philo->write = malloc(sizeof(pthread_mutex_t))))
+	{
+		free(philo->r_fork);
+		free(philo);
+		return (NULL);
+	}
+	pthread_mutex_init(philo->write, NULL);
 	philo->next = NULL;
 	philo->must_eat = 0;
 	if (!(philo->finish = malloc(sizeof(int))))
@@ -117,6 +127,13 @@ void	free_philos(t_philo *philo, int philos_nb)
 	while (i < philos_nb)
 	{
 		next = philo->next;
+		free(philo->r_fork);
+		if (philo->id == 1)
+		{
+			free(philo->write);
+			free(philo->finish);
+		}
+		philo->r_fork = NULL;
 		free(philo);
 		philo = NULL;
 		philo = next;
@@ -139,8 +156,14 @@ void	*run_philo(void *v_philo)
 	t_philo	*philo;
 
 	philo = v_philo;
-	
-	printf("%d\n", *philo->finish);
+	if (pthread_mutex_lock(philo->write))
+	{
+		printf("no\n");
+		return (NULL);
+	}
+	usleep(3000000);
+	printf("%d\n", philo->id);
+	pthread_mutex_unlock(philo->write);
 	return (NULL);
 }
 
@@ -150,6 +173,7 @@ int	main(int ac, char **av)
 	t_philo			*philo;
 	pthread_t		*threads;
 	int				i;
+
 
 	if (ac < 5 || ac > 6)
 		return (1);
