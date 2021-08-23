@@ -201,7 +201,7 @@ int		write_step(t_philo *philo, char *str)
 	ft_putnbr(time);
 	ft_putchar(' ');
 	ft_putnbr(philo->id);
-	if (time - philo->t_satiate > philo->t_die)
+	if (time - philo->t_satiate >= philo->t_die)
 	{
 		ft_putstr(" died\n");
 		*philo->finish = 1;
