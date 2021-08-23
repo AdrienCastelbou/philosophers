@@ -191,8 +191,8 @@ int		write_step(t_philo *philo, char *str)
 {
 	long long int time;
 
-	time = get_time();
 	pthread_mutex_lock(philo->write);
+	time = get_time();
 	if (*philo->finish == 1)
 	{
 		pthread_mutex_unlock(philo->write);
@@ -267,7 +267,6 @@ int	main(int ac, char **av)
 	t_philo			*philo;
 	pthread_t		*threads;
 	int				i;
-
 
 	if (ac < 5 || ac > 6)
 		return (1);
