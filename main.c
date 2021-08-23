@@ -75,8 +75,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	philo->t_eat = first_phil->t_eat;
 	philo->t_sleep = first_phil->t_sleep;
 	philo->must_eat = first_phil->must_eat;
-	if (philo->must_eat)
-		philo->t_must_eat = first_phil->t_must_eat;
+	philo->t_must_eat = first_phil->t_must_eat;
 	philo->next = set_philos(philo, id + 1, nb, first_phil);
 	return (philo);
 }
@@ -107,6 +106,7 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	if (!(philo->finish = malloc(sizeof(int))))
 		return (NULL);
 	*philo->finish = 0;
+	philo->t_must_eat = 1;
 	philo->t_die = ft_atolli(params[0]);
 	philo->t_eat = ft_atolli(params[1]);
 	philo->t_sleep = ft_atolli(params[2]);
@@ -232,7 +232,7 @@ void	*run_philo(void *v_philo)
 		second_fork = philo->r_fork;
 	}
 	philo->t_satiate = get_time();
-	while (*philo->finish == 0)
+	while (*philo->finish == 0 && philo->t_must_eat)
 	{
 		pthread_mutex_lock(first_fork);
 		if (write_step(philo, " has taken a fork\n") == 0)
@@ -252,6 +252,8 @@ void	*run_philo(void *v_philo)
 		usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
+		if (philo->must_eat)
+			philo->t_must_eat -= 1;
 		if (write_step(philo, " is sleeping\n") == 0)
 			return (NULL);
 		usleep(philo->t_sleep * 1000);
