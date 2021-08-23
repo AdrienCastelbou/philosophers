@@ -151,46 +151,89 @@ long long int	get_time()
 	return (time);
 }
 
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+}
+
+void	ft_putnbr(long long int nb)
+{
+	if (nb < 0)
+	{
+		ft_putchar('-');
+		nb *= -1;
+	}
+	if (nb < 10 && nb >= 0)
+		ft_putchar(nb + '0');
+	if (nb >= 10)
+	{
+		ft_putnbr(nb / 10);
+		ft_putchar((nb % 10 + '0'));
+	}
+}
+
+int		ft_strlen(char *s)
+{
+	int i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
+}
+
+void	ft_putstr(char *s)
+{
+	write(1, s, ft_strlen(s));
+}
+
+int		write_step(t_philo *philo, char *str)
+{
+	pthread_mutex_lock(philo->write);
+	ft_putnbr(get_time());
+	ft_putchar(' ');
+	ft_putnbr(philo->id);
+	ft_putstr(str);
+	pthread_mutex_unlock(philo->write);
+	return (1);
+}
+
 void	*run_philo(void *v_philo)
 {
 	t_philo	*philo;
 
 	philo = v_philo;
+	philo->t_satiate = get_time();
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(philo->r_fork);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d has taken a fork\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
+		write_step(philo, " has taken a fork\n");
 		pthread_mutex_lock(philo->l_fork);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d has taken a fork\n", get_time(), philo->id);
-		printf("%lld %d is eating\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
+		write_step(philo, " has taken a fork\n");
+		write_step(philo, " is eating\n");
+		philo->t_satiate = get_time();
 		usleep(philo->t_eat * 1000);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d hqs finish to eat\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
 		pthread_mutex_unlock(philo->r_fork);
 		pthread_mutex_unlock(philo->l_fork);
+		write_step(philo, " is sleeping\n");
+		usleep(philo->t_sleep * 1000);
+		write_step(philo, " is thinking\n");
 	}
 	else
 	{
 		pthread_mutex_lock(philo->l_fork);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d has taken a fork\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
+		write_step(philo, " has taken a fork\n");
 		pthread_mutex_lock(philo->r_fork);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d has taken a fork\n", get_time(), philo->id);
-		printf("%lld %d is eating\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
+		write_step(philo, " has taken a fork\n");
+		write_step(philo, " is eating\n");
+		philo->t_satiate = get_time();
 		usleep(philo->t_eat * 1000);
-		pthread_mutex_lock(philo->write);
-		printf("%lld %d hqs finish to eat\n", get_time(), philo->id);
-		pthread_mutex_unlock(philo->write);
-		pthread_mutex_unlock(philo->r_fork);
 		pthread_mutex_unlock(philo->l_fork);
+		pthread_mutex_unlock(philo->r_fork);
+		write_step(philo, " is sleeping\n");
+
+		usleep(philo->t_sleep * 1000);
+		write_step(philo, " is thinking\n");
 	}
 	return (NULL);
 }
