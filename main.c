@@ -221,7 +221,7 @@ void	*run_philo(void *v_philo)
 	pthread_mutex_t	*second_fork;
 
 	philo = v_philo;
-	if (philo->id % 2 == 0)
+	if (philo->id % 2 != 0)
 	{
 		first_fork = philo->r_fork;
 		second_fork = philo->l_fork;
