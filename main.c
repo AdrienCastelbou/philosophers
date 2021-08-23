@@ -232,29 +232,32 @@ void	*run_philo(void *v_philo)
 		second_fork = philo->r_fork;
 	}
 	philo->t_satiate = get_time();
-	pthread_mutex_lock(first_fork);
-	if (write_step(philo, " has taken a fork\n") == 0)
+	while (*philo->finish == 0)
 	{
-		pthread_mutex_unlock(first_fork);
-		return (NULL);
-	}
-	pthread_mutex_lock(second_fork);
-	if (write_step(philo, " has taken a fork\n") == 0)
-	{
+		pthread_mutex_lock(first_fork);
+		if (write_step(philo, " has taken a fork\n") == 0)
+		{
+			pthread_mutex_unlock(first_fork);
+			return (NULL);
+		}
+		pthread_mutex_lock(second_fork);
+		if (write_step(philo, " has taken a fork\n") == 0)
+		{
+			pthread_mutex_unlock(first_fork);
+			pthread_mutex_unlock(second_fork);
+			return (NULL);
+		}
+		write_step(philo, " is eating\n");
+		philo->t_satiate = get_time();
+		usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
-		return (NULL);
+		if (write_step(philo, " is sleeping\n") == 0)
+			return (NULL);
+		usleep(philo->t_sleep * 1000);
+		if (write_step(philo, " is thinking\n") == 0)
+			return (NULL);
 	}
-	write_step(philo, " is eating\n");
-	philo->t_satiate = get_time();
-	usleep(philo->t_eat * 1000);
-	pthread_mutex_unlock(first_fork);
-	pthread_mutex_unlock(second_fork);
-	if (write_step(philo, " is sleeping\n") == 0)
-		return (NULL);
-	usleep(philo->t_sleep * 1000);
-	if (write_step(philo, " is thinking\n"))
-		return (NULL);
 	return (NULL);
 }
 
