@@ -133,6 +133,7 @@ void	free_philos(t_philo *philo, int philos_nb)
 			free(philo->write);
 			free(philo->finish);
 		}
+		pthread_mutex_destroy(philo->r_fork);
 		philo->r_fork = NULL;
 		free(philo);
 		philo = NULL;
