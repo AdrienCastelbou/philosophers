@@ -201,7 +201,7 @@ int		write_step(t_philo *philo, char *str)
 	ft_putnbr(time);
 	ft_putchar(' ');
 	ft_putnbr(philo->id);
-	if (time - philo->t_satiate >= philo->t_die)
+	if (time - philo->t_satiate > philo->t_die)
 	{
 		ft_putstr(" died\n");
 		*philo->finish = 1;
@@ -212,6 +212,15 @@ int		write_step(t_philo *philo, char *str)
 		ft_putstr(str);
 	pthread_mutex_unlock(philo->write);
 	return (1);
+}
+
+void	ft_usleep(long long int delay)
+{
+	long long int	goal;
+
+	goal = get_time() + (delay / 1000);
+	while (get_time() != goal)
+		;
 }
 
 void	*run_philo(void *v_philo)
@@ -249,14 +258,14 @@ void	*run_philo(void *v_philo)
 		}
 		write_step(philo, " is eating\n");
 		philo->t_satiate = get_time();
-		usleep(philo->t_eat * 1000);
+		ft_usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
 		if (philo->must_eat)
 			philo->t_must_eat -= 1;
 		if (write_step(philo, " is sleeping\n") == 0)
 			return (NULL);
-		usleep(philo->t_sleep * 1000);
+		ft_usleep(philo->t_sleep * 1000);
 		if (write_step(philo, " is thinking\n") == 0)
 			return (NULL);
 	}
