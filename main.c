@@ -243,6 +243,7 @@ void	*run_philo(void *v_philo)
 	}
 	else
 	{
+		ft_usleep(1000);
 		first_fork = philo->l_fork;
 		second_fork = philo->r_fork;
 	}
