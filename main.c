@@ -210,7 +210,6 @@ int		write_step(t_philo *philo, char *str)
 	if (time - philo->t_satiate > philo->t_die)
 	{
 		ft_putstr(" died\n");
-		printf("%lld\n", philo->t_satiate);
 		*philo->finish = 1;
 		pthread_mutex_unlock(philo->write);
 		return (0);
@@ -266,7 +265,7 @@ void	*run_philo(void *v_philo)
 			return (NULL);
 		}
 		write_step(philo, " is eating\n");
-		philo->t_satiate = get_time();
+		philo->t_satiate = get_time() - *philo->t_start;
 		ft_usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
