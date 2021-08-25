@@ -13,6 +13,7 @@ typedef struct	s_philo {
 		long long int	t_eat;
 		long long int	t_sleep;
 		long long int	t_satiate;
+		long long int	*t_start;
 		int				must_eat;
 		int				t_must_eat;
 		int				*finish;
@@ -71,6 +72,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	}
 	pthread_mutex_init(philo->r_fork, NULL);
 	philo->finish = first_phil->finish;
+	philo->t_start = first_phil->t_start;
 	philo->t_die = first_phil->t_die;
 	philo->t_eat = first_phil->t_eat;
 	philo->t_sleep = first_phil->t_sleep;
@@ -106,6 +108,8 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	if (!(philo->finish = malloc(sizeof(int))))
 		return (NULL);
 	*philo->finish = 0;
+	if (!(philo->t_start = malloc(sizeof(long long int))))
+		return (NULL);
 	philo->t_must_eat = 1;
 	philo->t_die = ft_atolli(params[0]);
 	philo->t_eat = ft_atolli(params[1]);
@@ -132,6 +136,7 @@ void	free_philos(t_philo *philo, int philos_nb)
 		{
 			free(philo->write);
 			free(philo->finish);
+			free(philo->t_start);
 		}
 		pthread_mutex_destroy(philo->r_fork);
 		philo->r_fork = NULL;
@@ -193,9 +198,9 @@ int		write_step(t_philo *philo, char *str)
 	long long int	time;
 	long long int	t;
 
-	t = get_time();
+	t = get_time() - *philo->t_start;
 	pthread_mutex_lock(philo->write);
-	time = get_time();
+	time = get_time() - *philo->t_start;
 	if (*philo->finish == 1)
 	{
 		pthread_mutex_unlock(philo->write);
@@ -226,7 +231,7 @@ void	ft_usleep(long long int delay)
 
 	goal = get_time() + (delay / 1000);
 	while (get_time() < goal)
-		;
+		usleep(100);
 }
 
 void	*run_philo(void *v_philo)
@@ -249,6 +254,8 @@ void	*run_philo(void *v_philo)
 	philo->t_satiate = get_time();
 	while (*philo->finish == 0 && philo->t_must_eat)
 	{
+		if (write_step(philo, " is thinking\n") == 0)
+			return (NULL);
 		pthread_mutex_lock(first_fork);
 		if (write_step(philo, " has taken a fork\n") == 0)
 		{
@@ -271,9 +278,7 @@ void	*run_philo(void *v_philo)
 			philo->t_must_eat -= 1;
 		if (write_step(philo, " is sleeping\n") == 0)
 			return (NULL);
-		ft_usleep(philo->t_sleep * 1000);	
-		if (write_step(philo, " is thinking\n") == 0)
-			return (NULL);
+		ft_usleep(philo->t_sleep * 1000);
 	}
 	return (NULL);
 }
@@ -293,6 +298,7 @@ int	main(int ac, char **av)
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
 	i = -1;
+	*philo->t_start = get_time(); 
 	while (++i < philos_nb)
 	{
 		pthread_create(&threads[i], NULL, &run_philo, philo);
