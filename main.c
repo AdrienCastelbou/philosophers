@@ -196,9 +196,7 @@ void	ft_putstr(char *s)
 int		write_step(t_philo *philo, char *str)
 {
 	long long int	time;
-	long long int	t;
 
-	t = get_time() - *philo->t_start;
 	pthread_mutex_lock(philo->write);
 	time = get_time() - *philo->t_start;
 	if (*philo->finish == 1)
@@ -206,8 +204,6 @@ int		write_step(t_philo *philo, char *str)
 		pthread_mutex_unlock(philo->write);
 		return (0);
 	}
-	ft_putnbr(t);
-	write(1, " ", 1);
 	ft_putnbr(time);
 	ft_putchar(' ');
 	ft_putnbr(philo->id);
@@ -283,6 +279,32 @@ void	*run_philo(void *v_philo)
 	return (NULL);
 }
 
+int		check_args(char **args)
+{
+	int	i;
+	int	j;
+
+	i = -1;
+	while (args[++i])
+	{
+		j = -1;
+		while (args[i][++j] == '-' || args[i][j] == '+')
+		;
+		while (args[i][j] >= '0' && args[i][j] <= '9')
+			j++;
+		if (args[i][j])
+			return (0);
+	}
+	return (1);
+}
+
+int	check_params(t_philo *philo, int nb)
+{
+	if (nb < 0 || philo->t_die < 0 || philo->t_eat < 0 || philo->t_sleep < 0 || philo->t_must_eat < 0)
+		return (0);
+	return (1);
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
@@ -290,10 +312,19 @@ int	main(int ac, char **av)
 	pthread_t		*threads;
 	int				i;
 
-	if (ac < 5 || ac > 6)
+	if (ac < 5 || ac > 6 || check_args(&av[1]) == 0)
+	{
+		ft_putstr("Error: arguments are invalids\n");
 		return (1);
+	}
 	philos_nb = (int) ft_atolli(av[1]);
 	philo = set_first_philo(ac, &av[2]);
+	if (check_params(philo, philos_nb) == 0)
+	{
+		ft_putstr("Error: invalids params\n");
+		free_philos(philo, 1);
+		return (1);
+	}
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
 		return (1);
