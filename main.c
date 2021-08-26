@@ -237,6 +237,8 @@ void	*run_philo(void *v_philo)
 
 	philo = v_philo;
 	philo->t_satiate = get_time() - *philo->t_start;
+	if (write_step(philo, " is thinking\n") == 0)
+		return (NULL);
 	if (philo->id % 2 != 0)
 	{
 		first_fork = philo->r_fork;
@@ -250,8 +252,6 @@ void	*run_philo(void *v_philo)
 	}
 	while (*philo->finish == 0 && philo->t_must_eat)
 	{
-		if (write_step(philo, " is thinking\n") == 0)
-			return (NULL);
 		pthread_mutex_lock(first_fork);
 		if (write_step(philo, " has taken a fork\n") == 0)
 		{
@@ -275,6 +275,8 @@ void	*run_philo(void *v_philo)
 		if (write_step(philo, " is sleeping\n") == 0)
 			return (NULL);
 		ft_usleep(philo->t_sleep * 1000);
+		if (write_step(philo, " is thinking\n") == 0)
+			return (NULL);
 	}
 	return (NULL);
 }
