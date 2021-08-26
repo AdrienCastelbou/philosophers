@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/26 11:36:58 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/26 11:56:56 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef struct s_philo {
 	long long int	t_sleep;
 	long long int	t_satiate;
 	long long int	*t_start;
-	int				must_eat;
+	int				*must_eat;
 	int				t_must_eat;
 	int				*finish;
 	struct s_philo	*next;
@@ -96,7 +96,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	return (philo);
 }
 
-t_philo	*set_first_philo(int nb_params, char **params)
+t_philo	*set_first_philo(int nb_params, char **params, int	philos_nb)
 {
 	t_philo			*philo;
 
@@ -121,7 +121,6 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	}
 	pthread_mutex_init(philo->write, NULL);
 	philo->next = NULL;
-	philo->must_eat = 0;
 	philo->finish = malloc(sizeof(int));
 	if (!philo->finish)
 		return (NULL);
@@ -129,6 +128,10 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	philo->t_start = malloc(sizeof(long long int));
 	if (!philo->t_start)
 		return (NULL);
+	philo->must_eat = malloc(sizeof(int));
+	if (!philo->must_eat)
+		return (NULL);
+	*philo->must_eat = -1;
 	philo->t_must_eat = 1;
 	philo->t_die = ft_atolli(params[0]);
 	philo->t_eat = ft_atolli(params[1]);
@@ -136,7 +139,7 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	if (nb_params == 6)
 	{
 		philo->t_must_eat = ft_atolli(params[3]);
-		philo->must_eat = 1;
+		*philo->must_eat = philos_nb;
 	}
 	return (philo);
 }
@@ -289,7 +292,7 @@ void	*run_philo(void *v_philo)
 		ft_usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
-		if (philo->must_eat)
+		if (*philo->must_eat != -1)
 			philo->t_must_eat -= 1;
 		if (write_step(philo, " is sleeping\n") == 0)
 			return (NULL);
@@ -297,6 +300,8 @@ void	*run_philo(void *v_philo)
 		if (write_step(philo, " is thinking\n") == 0)
 			return (NULL);
 	}
+	if (philo->t_must_eat == 0)
+		*philo->must_eat -= 1;
 	return (NULL);
 }
 
@@ -333,10 +338,10 @@ void	*monitoring(void	*v_philo)
 	long long int	time;
 
 	philo = v_philo;
-	while (*philo->finish == 0)
+	while (*philo->finish == 0 && *philo->must_eat != 0)
 	{
 		time = get_time() - *philo->t_start;
-		if (time - philo->t_satiate > philo->t_die)
+		if (philo->t_must_eat && time - philo->t_satiate > philo->t_die)
 			write_step(philo, " died\n");
 		philo = philo->next;
 	}
@@ -357,7 +362,7 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	philos_nb = (int) ft_atolli(av[1]);
-	philo = set_first_philo(ac, &av[2]);
+	philo = set_first_philo(ac, &av[2], philos_nb);
 	if (check_params(philo, philos_nb) == 0)
 	{
 		ft_putstr("Error: invalids params\n");
