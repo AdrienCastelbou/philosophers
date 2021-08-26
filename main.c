@@ -236,6 +236,7 @@ void	*run_philo(void *v_philo)
 	pthread_mutex_t	*second_fork;
 
 	philo = v_philo;
+	philo->t_satiate = get_time() - *philo->t_start;
 	if (philo->id % 2 != 0)
 	{
 		first_fork = philo->r_fork;
@@ -247,7 +248,6 @@ void	*run_philo(void *v_philo)
 		first_fork = philo->l_fork;
 		second_fork = philo->r_fork;
 	}
-	philo->t_satiate = get_time();
 	while (*philo->finish == 0 && philo->t_must_eat)
 	{
 		if (write_step(philo, " is thinking\n") == 0)
@@ -305,11 +305,28 @@ int	check_params(t_philo *philo, int nb)
 	return (1);
 }
 
+void	*monitoring(void	*v_philo)
+{
+	t_philo	*philo;
+	long long int	time;
+
+	philo = v_philo;
+	while (*philo->finish == 0)
+	{
+		time = get_time() - *philo->t_start;
+		if (time - philo->t_satiate > philo->t_die)
+			write_step(philo, " die\n");
+		philo = philo->next;
+	}
+	return (NULL);
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
 	t_philo			*philo;
 	pthread_t		*threads;
+	pthread_t		monitor;
 	int				i;
 
 	if (ac < 5 || ac > 6 || check_args(&av[1]) == 0)
@@ -335,9 +352,8 @@ int	main(int ac, char **av)
 		pthread_create(&threads[i], NULL, &run_philo, philo);
 		philo = philo->next;
 	}
-	i = -1;
-	while (++i < philos_nb)
-		pthread_join(threads[i], NULL);
+	pthread_create(&monitor, NULL, &monitoring, philo);
+	pthread_join(monitor, NULL);
 	free_philos(philo, philos_nb);
 	free(threads);
 }
