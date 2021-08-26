@@ -315,7 +315,7 @@ void	*monitoring(void	*v_philo)
 	{
 		time = get_time() - *philo->t_start;
 		if (time - philo->t_satiate > philo->t_die)
-			write_step(philo, " die\n");
+			write_step(philo, " died\n");
 		philo = philo->next;
 	}
 	return (NULL);
