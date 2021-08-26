@@ -1,32 +1,44 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
+/*   Updated: 2021/08/26 11:36:58 by acastelb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/time.h>
 #include <string.h>
-typedef struct	s_philo {
-		int				id;
-		pthread_mutex_t	*l_fork;
-		pthread_mutex_t	*r_fork;
-		pthread_mutex_t	*write;
-		long long int	t_die;
-		long long int	t_eat;
-		long long int	t_sleep;
-		long long int	t_satiate;
-		long long int	*t_start;
-		int				must_eat;
-		int				t_must_eat;
-		int				*finish;
-		struct s_philo	*next;
-		struct s_philo	*prev;
-}				t_philo;
 
+typedef struct s_philo {
+	int				id;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
+	pthread_mutex_t	*write;
+	long long int	t_die;
+	long long int	t_eat;
+	long long int	t_sleep;
+	long long int	t_satiate;
+	long long int	*t_start;
+	int				must_eat;
+	int				t_must_eat;
+	int				*finish;
+	struct s_philo	*next;
+	struct s_philo	*prev;
+}				t_philo;
 
 long int	ft_atolli(char *s)
 {
-	long long int result;
-	int		i;
-	int		sign;
+	long long int	result;
+	int				i;
+	int				sign;
 
 	result = 0;
 	i = 0;
@@ -39,7 +51,7 @@ long int	ft_atolli(char *s)
 			sign *= -1;
 		i++;
 	}
-	while (s[i] >= '0' && s[i] <='9')
+	while (s[i] >= '0' && s[i] <= '9')
 	{
 		result = result * 10 + (s[i] - '0');
 		i++;
@@ -57,7 +69,8 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 		first_phil->l_fork = prev->r_fork;
 		return (first_phil);
 	}
-	if (!(philo = malloc(sizeof(t_philo))))
+	philo = malloc(sizeof(t_philo));
+	if (!(philo))
 		return (NULL);
 	*first_phil->finish = 0;
 	philo->id = id;
@@ -65,7 +78,8 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	if (philo->prev)
 		philo->l_fork = philo->prev->r_fork;
 	philo->write = first_phil->write;
-	if (!(philo->r_fork = malloc(sizeof(pthread_mutex_t))))
+	philo->r_fork = malloc(sizeof(pthread_mutex_t));
+	if (!(philo->r_fork))
 	{
 		free(philo);
 		return (NULL);
@@ -86,17 +100,20 @@ t_philo	*set_first_philo(int nb_params, char **params)
 {
 	t_philo			*philo;
 
-	if (!(philo = malloc(sizeof(t_philo))))
+	philo = malloc(sizeof(t_philo));
+	if (!philo)
 		return (NULL);
 	philo->id = 1;
 	philo->prev = NULL;
-	if (!(philo->r_fork = malloc(sizeof(pthread_mutex_t))))
+	philo->r_fork = malloc(sizeof(pthread_mutex_t));
+	if (!philo->r_fork)
 	{
 		free(philo);
 		return (NULL);
 	}
 	pthread_mutex_init(philo->r_fork, NULL);
-	if (!(philo->write = malloc(sizeof(pthread_mutex_t))))
+	philo->write = malloc(sizeof(pthread_mutex_t));
+	if (!philo->write)
 	{
 		free(philo->r_fork);
 		free(philo);
@@ -105,10 +122,12 @@ t_philo	*set_first_philo(int nb_params, char **params)
 	pthread_mutex_init(philo->write, NULL);
 	philo->next = NULL;
 	philo->must_eat = 0;
-	if (!(philo->finish = malloc(sizeof(int))))
+	philo->finish = malloc(sizeof(int));
+	if (!philo->finish)
 		return (NULL);
 	*philo->finish = 0;
-	if (!(philo->t_start = malloc(sizeof(long long int))))
+	philo->t_start = malloc(sizeof(long long int));
+	if (!philo->t_start)
 		return (NULL);
 	philo->t_must_eat = 1;
 	philo->t_die = ft_atolli(params[0]);
@@ -125,7 +144,7 @@ t_philo	*set_first_philo(int nb_params, char **params)
 void	free_philos(t_philo *philo, int philos_nb)
 {
 	t_philo	*next;
-	int i;
+	int		i;
 
 	i = 0;
 	while (i < philos_nb)
@@ -147,7 +166,7 @@ void	free_philos(t_philo *philo, int philos_nb)
 	}
 }
 
-long long int	get_time()
+long long int	get_time(void)
 {
 	struct timeval	current_time;
 	long long int	time;
@@ -178,9 +197,9 @@ void	ft_putnbr(long long int nb)
 	}
 }
 
-int		ft_strlen(char *s)
+int	ft_strlen(char *s)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (s[i])
@@ -193,7 +212,7 @@ void	ft_putstr(char *s)
 	write(1, s, ft_strlen(s));
 }
 
-int		write_step(t_philo *philo, char *str)
+int	write_step(t_philo *philo, char *str)
 {
 	long long int	time;
 
@@ -231,7 +250,7 @@ void	ft_usleep(long long int delay)
 
 void	*run_philo(void *v_philo)
 {
-	t_philo	*philo;
+	t_philo			*philo;
 	pthread_mutex_t	*first_fork;
 	pthread_mutex_t	*second_fork;
 
@@ -281,7 +300,7 @@ void	*run_philo(void *v_philo)
 	return (NULL);
 }
 
-int		check_args(char **args)
+int	check_args(char **args)
 {
 	int	i;
 	int	j;
@@ -291,7 +310,7 @@ int		check_args(char **args)
 	{
 		j = -1;
 		while (args[i][++j] == '-' || args[i][j] == '+')
-		;
+			;
 		while (args[i][j] >= '0' && args[i][j] <= '9')
 			j++;
 		if (args[i][j])
@@ -302,14 +321,15 @@ int		check_args(char **args)
 
 int	check_params(t_philo *philo, int nb)
 {
-	if (nb < 0 || philo->t_die < 0 || philo->t_eat < 0 || philo->t_sleep < 0 || philo->t_must_eat < 0)
+	if (nb < 0 || philo->t_die < 0 || philo->t_eat < 0
+		|| philo->t_sleep < 0 || philo->t_must_eat < 0)
 		return (0);
 	return (1);
 }
 
 void	*monitoring(void	*v_philo)
 {
-	t_philo	*philo;
+	t_philo			*philo;
 	long long int	time;
 
 	philo = v_philo;
@@ -345,10 +365,11 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	philo->next = set_philos(philo, 2, philos_nb, philo);
-	if (!(threads = malloc(sizeof(pthread_t) * philos_nb)))
+	threads = malloc(sizeof(pthread_t) * philos_nb);
+	if (!threads)
 		return (1);
 	i = -1;
-	*philo->t_start = get_time(); 
+	*philo->t_start = get_time();
 	while (++i < philos_nb)
 	{
 		pthread_create(&threads[i], NULL, &run_philo, philo);
