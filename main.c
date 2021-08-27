@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/26 14:53:15 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/27 15:00:34 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ typedef struct s_philo {
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*write;
-	pthread_mutex_t	*check_end;
+	pthread_mutex_t	check_death;
 	long long int	t_die;
 	long long int	t_eat;
 	long long int	t_sleep;
@@ -79,7 +79,7 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	if (philo->prev)
 		philo->l_fork = philo->prev->r_fork;
 	philo->write = first_phil->write;
-	philo->check_end = first_phil->check_end;
+	pthread_mutex_init(&philo->check_death, NULL);
 	philo->r_fork = malloc(sizeof(pthread_mutex_t));
 	if (!(philo->r_fork))
 	{
@@ -122,13 +122,7 @@ t_philo	*set_first_philo(int nb_params, char **params, int	philos_nb)
 		return (NULL);
 	}
 	pthread_mutex_init(philo->write, NULL);
-	philo->check_end = malloc(sizeof(pthread_mutex_t));
-	if (!philo->check_end)
-	{
-		free(philo);
-		return (NULL);
-	}
-	pthread_mutex_init(philo->check_end, NULL);
+	pthread_mutex_init(&philo->check_death, NULL);
 	philo->next = NULL;
 	philo->finish = malloc(sizeof(int));
 	if (!philo->finish)
@@ -168,8 +162,8 @@ void	free_philos(t_philo *philo, int philos_nb)
 			free(philo->write);
 			free(philo->finish);
 			free(philo->t_start);
-			pthread_mutex_destroy(philo->check_end);
 		}
+		pthread_mutex_destroy(&philo->check_death);
 		pthread_mutex_destroy(philo->r_fork);
 		philo->r_fork = NULL;
 		free(philo);
@@ -231,26 +225,10 @@ int	write_step(t_philo *philo, char *str)
 
 	pthread_mutex_lock(philo->write);
 	time = get_time() - *philo->t_start;
-	pthread_mutex_lock(philo->check_end);
-	if (*philo->finish == 1)
-	{
-		pthread_mutex_unlock(philo->check_end);
-		pthread_mutex_unlock(philo->write);
-		return (0);
-	}
-	pthread_mutex_unlock(philo->check_end);
 	ft_putnbr(time);
 	ft_putchar(' ');
 	ft_putnbr(philo->id);
-	if (time - philo->t_satiate > philo->t_die)
-	{
-		ft_putstr(" died\n");
-		*philo->finish = 1;
-		pthread_mutex_unlock(philo->write);
-		return (0);
-	}
-	else
-		ft_putstr(str);
+	ft_putstr(str);
 	pthread_mutex_unlock(philo->write);
 	return (1);
 }
@@ -271,7 +249,6 @@ void	*run_philo(void *v_philo)
 	pthread_mutex_t	*second_fork;
 
 	philo = v_philo;
-	philo->t_satiate = get_time() - *philo->t_start;
 	if (write_step(philo, " is thinking\n") == 0)
 		return (NULL);
 	if (philo->id % 2 != 0)
@@ -288,40 +265,23 @@ void	*run_philo(void *v_philo)
 	while (philo->t_must_eat)
 	{
 		pthread_mutex_lock(first_fork);
-		if (write_step(philo, " has taken a fork\n") == 0)
-		{
-			pthread_mutex_unlock(first_fork);
-			return (NULL);
-		}
+		write_step(philo, " has taken a fork\n");
 		pthread_mutex_lock(second_fork);
-		if (write_step(philo, " has taken a fork\n") == 0)
-		{
-			pthread_mutex_unlock(first_fork);
-			pthread_mutex_unlock(second_fork);
-			return (NULL);
-		}
+		write_step(philo, " has taken a fork\n");
 		write_step(philo, " is eating\n");
+		pthread_mutex_lock(&philo->check_death);
 		philo->t_satiate = get_time() - *philo->t_start;
+		pthread_mutex_unlock(&philo->check_death);
 		ft_usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
 		if (*philo->must_eat != -1)
 			philo->t_must_eat -= 1;
-		if (write_step(philo, " is sleeping\n") == 0)
-			return (NULL);
+		write_step(philo, " is sleeping\n");
 		ft_usleep(philo->t_sleep * 1000);
-		if (write_step(philo, " is thinking\n") == 0)
-			return (NULL);
+		write_step(philo, " is thinking\n");
 	}
-	if (philo->t_must_eat == 0)
-		*philo->must_eat -= 1;
-	pthread_mutex_lock(philo->check_end);
-	if (*philo->finish == 1)
-	{
-		pthread_mutex_unlock(philo->check_end);
-		return (NULL);
-	}
-	pthread_mutex_unlock(philo->check_end);
+	*philo->must_eat -= 1;
 	return (NULL);
 }
 
@@ -352,17 +312,28 @@ int	check_params(t_philo *philo, int nb)
 	return (1);
 }
 
+
+
 void	*monitoring(void	*v_philo)
 {
 	t_philo			*philo;
 	long long int	time;
+	long long int	start;
 
 	philo = v_philo;
-	while (*philo->finish == 0 && *philo->must_eat != 0)
+	start = *philo->t_start;
+	while (1)
 	{
-		time = get_time() - *philo->t_start;
-		if (philo->t_must_eat && time - philo->t_satiate > philo->t_die)
+		time = get_time() - start;
+		pthread_mutex_lock(&philo->check_death);
+		if (time - philo->t_satiate > philo->t_die)
+		{
 			write_step(philo, " died\n");
+
+			pthread_mutex_unlock(&philo->check_death);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&philo->check_death);
 		philo = philo->next;
 	}
 	return (NULL);
@@ -397,12 +368,13 @@ int	main(int ac, char **av)
 	*philo->t_start = get_time();
 	while (++i < philos_nb)
 	{
+		philo->t_satiate = get_time() - *philo->t_start;
 		pthread_create(&threads[i], NULL, &run_philo, philo);
+		pthread_detach(threads[i]);
 		philo = philo->next;
 	}
-	i = -1;
-	while (++i < philos_nb)
-		pthread_join(threads[i], NULL);
+	pthread_create(&monitor, NULL, &monitoring, philo);
+	pthread_join(monitor, NULL);
 	free_philos(philo, philos_nb);
 	free(threads);
 }
