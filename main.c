@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/27 15:22:49 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/27 15:37:04 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,14 +301,20 @@ void	*run_philo(void *v_philo)
 		ft_usleep(philo->t_eat * 1000);
 		pthread_mutex_unlock(first_fork);
 		pthread_mutex_unlock(second_fork);
+		pthread_mutex_lock(philo->check_end);
 		if (*philo->must_eat != -1)
 			philo->t_must_eat -= 1;
+		pthread_mutex_unlock(philo->check_end);
 		write_step(philo, " is sleeping\n");
 		ft_usleep(philo->t_sleep * 1000);
 		write_step(philo, " is thinking\n");
 	}
 	if (philo->t_must_eat == 0)
+	{
+		pthread_mutex_lock(philo->check_end);
 		*philo->must_eat -= 1;
+		pthread_mutex_unlock(philo->check_end);
+	}
 	return (NULL);
 }
 
@@ -351,6 +357,13 @@ void	*monitoring(void	*v_philo)
 	start = *philo->t_start;
 	while (1)
 	{
+		pthread_mutex_lock(philo->check_end);
+		if (*philo->must_eat == 0)
+		{
+			pthread_mutex_unlock(philo->check_end);
+			return (NULL);
+		}
+		pthread_mutex_unlock(philo->check_end);
 		time = get_time() - start;
 		pthread_mutex_lock(&philo->check_death);
 		if (time - philo->t_satiate > philo->t_die)
