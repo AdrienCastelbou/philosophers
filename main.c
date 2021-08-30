@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:52:29 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:58:45 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,6 +375,31 @@ int	check_params(t_philo *philo, int nb)
 	return (1);
 }
 
+int	check_end_routine(t_philo *philo,
+		long long int start, long long int time)
+{
+	pthread_mutex_lock(philo->check_end);
+	if (*philo->must_eat == 0)
+	{
+		pthread_mutex_unlock(philo->check_end);
+		return (1);
+	}
+	pthread_mutex_unlock(philo->check_end);
+	time = get_time() - start;
+	pthread_mutex_lock(&philo->check_death);
+	if (time - philo->t_satiate > philo->t_die)
+	{
+		write_step(philo, " died\n");
+		pthread_mutex_lock(philo->check_end);
+		*philo->finish = 1;
+		pthread_mutex_unlock(philo->check_end);
+		pthread_mutex_unlock(&philo->check_death);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->check_death);
+	return (0);
+}
+
 void	*monitoring(void	*v_philo)
 {
 	t_philo			*philo;
@@ -385,25 +410,8 @@ void	*monitoring(void	*v_philo)
 	start = *philo->t_start;
 	while (1)
 	{
-		pthread_mutex_lock(philo->check_end);
-		if (*philo->must_eat == 0)
-		{
-			pthread_mutex_unlock(philo->check_end);
+		if (check_end_routine(philo, start, time))
 			return (NULL);
-		}
-		pthread_mutex_unlock(philo->check_end);
-		time = get_time() - start;
-		pthread_mutex_lock(&philo->check_death);
-		if (time - philo->t_satiate > philo->t_die)
-		{
-			write_step(philo, " died\n");
-			pthread_mutex_lock(philo->check_end);
-			*philo->finish = 1;
-			pthread_mutex_unlock(philo->check_end);
-			pthread_mutex_unlock(&philo->check_death);
-			return (NULL);
-		}
-		pthread_mutex_unlock(&philo->check_death);
 		philo = philo->next;
 	}
 	return (NULL);
