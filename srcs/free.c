@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:29:54 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 10:30:22 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 14:33:00 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	free_philos(t_philo *philo, int philos_nb)
 	int		i;
 
 	i = 0;
-	while (i < philos_nb)
+	while (i < philos_nb && philo)
 	{
 		next = philo->next;
 		free(philo->r_fork);
@@ -41,5 +41,6 @@ void	free_philos(t_philo *philo, int philos_nb)
 void	ft_free(t_philo *philo, pthread_t *threads, int philos_nb)
 {
 	free_philos(philo, philos_nb);
-	free(threads);
+	if (threads)
+		free(threads);
 }

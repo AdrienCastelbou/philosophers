@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:22:07 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 10:22:50 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 14:51:17 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,10 +79,7 @@ t_philo	*set_first_philo2(t_philo *philo, int nb_params,
 {
 	philo->check_end = malloc(sizeof(pthread_mutex_t));
 	if (!philo->check_end)
-	{
-		free(philo);
 		return (NULL);
-	}
 	pthread_mutex_init(philo->check_end, NULL);
 	pthread_mutex_init(&philo->check_death, NULL);
 	philo->next = NULL;

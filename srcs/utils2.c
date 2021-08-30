@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:28:06 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 10:28:57 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 14:33:51 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ int	check_args(char **args)
 
 int	check_params(t_philo *philo, int nb)
 {
+	if (!philo)
+		return (0);
 	if (nb < 0 || philo->t_die < 0 || philo->t_eat < 0
 		|| philo->t_sleep < 0 || philo->t_must_eat < 0)
 		return (0);

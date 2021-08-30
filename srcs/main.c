@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 11:08:49 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 14:47:33 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,25 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 		pthread_join(threads[i], NULL);
 }
 
+int	check_philos(t_philo *philo, int nb_philos)
+{
+	if (!philo || !philo->r_fork || !philo->write
+		|| !philo->check_end || !philo->finish
+		|| !philo->t_start || !philo->must_eat)
+		return (0);
+	if (nb_philos > 1)
+		return (1);
+	philo = philo->next;
+	while (philo && philo->id != 1)
+	{
+		if (!philo->next || !philo->r_fork)
+			return (0);
+	}
+	if (!philo)
+		return (0);
+	return (1);
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
@@ -117,8 +136,11 @@ int	main(int ac, char **av)
 	}
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	threads = malloc(sizeof(pthread_t) * philos_nb);
-	if (!threads)
+	if (!threads || check_philos(philo, philos_nb))
+	{
+		ft_free(philo, threads, philos_nb);
 		return (1);
+	}
 	threads_init(philo, threads, philos_nb);
 	ft_free(philo, threads, philos_nb);
 }
