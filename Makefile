@@ -16,7 +16,7 @@ HEADER	=	-I includes
 all:		${NAME}
 
 ${NAME}:	${OBJS}
-			${CC} ${CFLAGS} ${HEADER} ${OBJS} -o ${NAME}
+			${CC} ${CFLAGS} ${HEADER} ${OBJS} -o ${NAME} -pthreads
 
 clean:
 			rm -f ${OBJS}

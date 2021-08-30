@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:29:54 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 14:33:00 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 16:12:57 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,11 @@ void	free_philos(t_philo *philo, int philos_nb)
 		{
 			free(philo->write);
 			free(philo->finish);
+			free(philo->must_eat);
 			free(philo->t_start);
+			free(philo->check_end);
 		}
 		pthread_mutex_destroy(&philo->check_death);
-		pthread_mutex_destroy(philo->r_fork);
 		philo->r_fork = NULL;
 		free(philo);
 		philo = NULL;
