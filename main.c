@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:31:22 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:34:39 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,25 @@ long int	ft_atolli(char *s)
 	return (result * sign);
 }
 
+t_philo	*set_philos2(t_philo *philo, t_philo *first_phil)
+{
+	philo->r_fork = malloc(sizeof(pthread_mutex_t));
+	if (!(philo->r_fork))
+	{
+		free(philo);
+		return (NULL);
+	}
+	pthread_mutex_init(philo->r_fork, NULL);
+	philo->finish = first_phil->finish;
+	philo->t_start = first_phil->t_start;
+	philo->t_die = first_phil->t_die;
+	philo->t_eat = first_phil->t_eat;
+	philo->t_sleep = first_phil->t_sleep;
+	philo->must_eat = first_phil->must_eat;
+	philo->t_must_eat = first_phil->t_must_eat;
+	return (philo);
+}
+
 t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 {
 	t_philo			*philo;
@@ -82,20 +101,8 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	philo->write = first_phil->write;
 	philo->check_end = first_phil->check_end;
 	pthread_mutex_init(&philo->check_death, NULL);
-	philo->r_fork = malloc(sizeof(pthread_mutex_t));
-	if (!(philo->r_fork))
-	{
-		free(philo);
+	if (!set_philos2(philo, first_phil))
 		return (NULL);
-	}
-	pthread_mutex_init(philo->r_fork, NULL);
-	philo->finish = first_phil->finish;
-	philo->t_start = first_phil->t_start;
-	philo->t_die = first_phil->t_die;
-	philo->t_eat = first_phil->t_eat;
-	philo->t_sleep = first_phil->t_sleep;
-	philo->must_eat = first_phil->must_eat;
-	philo->t_must_eat = first_phil->t_must_eat;
 	philo->next = set_philos(philo, id + 1, nb, first_phil);
 	return (philo);
 }
