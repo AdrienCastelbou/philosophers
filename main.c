@@ -6,60 +6,11 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:58:45 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 10:20:26 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/time.h>
-#include <string.h>
-
-typedef struct s_philo {
-	int				id;
-	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	*r_fork;
-	pthread_mutex_t	*write;
-	pthread_mutex_t	check_death;
-	pthread_mutex_t	*check_end;
-	long long int	t_die;
-	long long int	t_eat;
-	long long int	t_sleep;
-	long long int	t_satiate;
-	long long int	*t_start;
-	int				*must_eat;
-	int				t_must_eat;
-	int				*finish;
-	struct s_philo	*next;
-	struct s_philo	*prev;
-}				t_philo;
-
-long int	ft_atolli(char *s)
-{
-	long long int	result;
-	int				i;
-	int				sign;
-
-	result = 0;
-	i = 0;
-	sign = 1;
-	while (s[i] == ' ' || (s[i] >= 9 && s[i] <= 13))
-		i++;
-	while (s[i] == '+' || s[i] == '-')
-	{
-		if (s[i] == '-')
-			sign *= -1;
-		i++;
-	}
-	while (s[i] >= '0' && s[i] <= '9')
-	{
-		result = result * 10 + (s[i] - '0');
-		i++;
-	}
-	return (result * sign);
-}
+#include "philo.h"
 
 t_philo	*set_philos2(t_philo *philo, t_philo *first_phil)
 {
@@ -212,44 +163,6 @@ long long int	get_time(void)
 	time = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
 	return (time);
 }
-
-void	ft_putchar(char c)
-{
-	write(1, &c, 1);
-}
-
-void	ft_putnbr(long long int nb)
-{
-	if (nb < 0)
-	{
-		ft_putchar('-');
-		nb *= -1;
-	}
-	if (nb < 10 && nb >= 0)
-		ft_putchar(nb + '0');
-	if (nb >= 10)
-	{
-		ft_putnbr(nb / 10);
-		ft_putchar((nb % 10 + '0'));
-	}
-}
-
-int	ft_strlen(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
-void	ft_putstr(char *s)
-{
-	write(1, s, ft_strlen(s));
-}
-
-int	check_end(t_philo *philo);
 
 int	write_step(t_philo *philo, char *str)
 {
