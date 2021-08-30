@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:34:39 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:45:04 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,48 @@ t_philo	*set_philos(t_philo *prev, int id, int nb, t_philo *first_phil)
 	return (philo);
 }
 
+t_philo	*set_first_philo3(t_philo *philo, int nb_params,
+		char **params, int philos_nb)
+{
+	*philo->must_eat = -1;
+	philo->t_must_eat = 1;
+	philo->t_die = ft_atolli(params[0]);
+	philo->t_eat = ft_atolli(params[1]);
+	philo->t_sleep = ft_atolli(params[2]);
+	if (nb_params == 6)
+	{
+		philo->t_must_eat = ft_atolli(params[3]);
+		*philo->must_eat = philos_nb;
+	}
+	return (philo);
+}
+
+t_philo	*set_first_philo2(t_philo *philo, int nb_params,
+		char **params, int philos_nb)
+{
+	philo->check_end = malloc(sizeof(pthread_mutex_t));
+	if (!philo->check_end)
+	{
+		free(philo);
+		return (NULL);
+	}
+	pthread_mutex_init(philo->check_end, NULL);
+	pthread_mutex_init(&philo->check_death, NULL);
+	philo->next = NULL;
+	philo->finish = malloc(sizeof(int));
+	if (!philo->finish)
+		return (NULL);
+	*philo->finish = 0;
+	philo->t_start = malloc(sizeof(long long int));
+	if (!philo->t_start)
+		return (NULL);
+	philo->must_eat = malloc(sizeof(int));
+	if (!philo->must_eat)
+		return (NULL);
+	set_first_philo3(philo, nb_params, params, philos_nb);
+	return (philo);
+}
+
 t_philo	*set_first_philo(int nb_params, char **params, int	philos_nb)
 {
 	t_philo			*philo;
@@ -131,35 +173,7 @@ t_philo	*set_first_philo(int nb_params, char **params, int	philos_nb)
 		return (NULL);
 	}
 	pthread_mutex_init(philo->write, NULL);
-	philo->check_end = malloc(sizeof(pthread_mutex_t));
-	if (!philo->check_end)
-	{
-		free(philo);
-		return (NULL);
-	}
-	pthread_mutex_init(philo->check_end, NULL);
-	pthread_mutex_init(&philo->check_death, NULL);
-	philo->next = NULL;
-	philo->finish = malloc(sizeof(int));
-	if (!philo->finish)
-		return (NULL);
-	*philo->finish = 0;
-	philo->t_start = malloc(sizeof(long long int));
-	if (!philo->t_start)
-		return (NULL);
-	philo->must_eat = malloc(sizeof(int));
-	if (!philo->must_eat)
-		return (NULL);
-	*philo->must_eat = -1;
-	philo->t_must_eat = 1;
-	philo->t_die = ft_atolli(params[0]);
-	philo->t_eat = ft_atolli(params[1]);
-	philo->t_sleep = ft_atolli(params[2]);
-	if (nb_params == 6)
-	{
-		philo->t_must_eat = ft_atolli(params[3]);
-		*philo->must_eat = philos_nb;
-	}
+	set_first_philo2(philo, nb_params, params, philos_nb);
 	return (philo);
 }
 
