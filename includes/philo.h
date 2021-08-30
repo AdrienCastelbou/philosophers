@@ -57,4 +57,5 @@ void			*run_one_philo(void	*v_philo);
 void			threads_init(t_philo *philo, pthread_t *threads,
 					int philos_nb);
 void			ft_free(t_philo *philo, pthread_t *threads, int philos_nb);
+int				check_philos(t_philo *philo, int nb_philos);
 #endif

@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 14:59:40 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 15:03:42 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,25 +94,6 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 	i = -1;
 	while (++i < philos_nb)
 		pthread_join(threads[i], NULL);
-}
-
-int	check_philos(t_philo *philo, int nb_philos)
-{
-	if (!philo || !philo->r_fork || !philo->write
-		|| !philo->check_end || !philo->finish
-		|| !philo->t_start || !philo->must_eat)
-		return (0);
-	if (nb_philos > 1)
-		return (1);
-	philo = philo->next;
-	while (philo && philo->id != 1)
-	{
-		if (!philo->next || !philo->r_fork)
-			return (0);
-	}
-	if (!philo)
-		return (0);
-	return (1);
 }
 
 int	main(int ac, char **av)
