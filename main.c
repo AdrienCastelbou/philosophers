@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:30:17 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:31:22 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -406,7 +406,7 @@ void	*run_one_philo(void	*v_philo)
 
 void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 {
-	int	i;
+	int			i;
 	pthread_t	monitor;
 
 	i = -1;
@@ -431,7 +431,6 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 	while (++i < philos_nb)
 		pthread_join(threads[i], NULL);
 }
-
 
 void	ft_free(t_philo *philo, pthread_t *threads, int philos_nb)
 {
