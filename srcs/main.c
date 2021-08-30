@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 14:47:33 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 14:59:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ int	main(int ac, char **av)
 	}
 	philo->next = set_philos(philo, 2, philos_nb, philo);
 	threads = malloc(sizeof(pthread_t) * philos_nb);
-	if (!threads || check_philos(philo, philos_nb))
+	if (!threads || !check_philos(philo, philos_nb))
 	{
 		ft_free(philo, threads, philos_nb);
 		return (1);
