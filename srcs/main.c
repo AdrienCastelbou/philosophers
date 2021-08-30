@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 10:30:44 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 11:08:49 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ void	*monitoring(void	*v_philo)
 
 	philo = v_philo;
 	start = *philo->t_start;
+	time = 0;
 	while (1)
 	{
 		if (check_end_routine(philo, start, time))
