@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:13:54 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:30:17 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,7 +258,7 @@ void	ft_usleep(long long int delay)
 		usleep(100);
 }
 
-int		check_end(t_philo *philo)
+int	check_end(t_philo *philo)
 {
 	int	result;
 
@@ -348,8 +348,6 @@ int	check_params(t_philo *philo, int nb)
 	return (1);
 }
 
-
-
 void	*monitoring(void	*v_philo)
 {
 	t_philo			*philo;
@@ -404,34 +402,13 @@ void	*run_one_philo(void	*v_philo)
 		pthread_mutex_unlock(philo->check_end);
 	}
 	return (NULL);
-
 }
 
-int	main(int ac, char **av)
+void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 {
-	int				philos_nb;
-	t_philo			*philo;
-	pthread_t		*threads;
-	pthread_t		monitor;
-	int				i;
+	int	i;
+	pthread_t	monitor;
 
-	if (ac < 5 || ac > 6 || check_args(&av[1]) == 0)
-	{
-		ft_putstr("Error: arguments are invalids\n");
-		return (1);
-	}
-	philos_nb = (int) ft_atolli(av[1]);
-	philo = set_first_philo(ac, &av[2], philos_nb);
-	if (check_params(philo, philos_nb) == 0)
-	{
-		ft_putstr("Error: invalids params\n");
-		free_philos(philo, 1);
-		return (1);
-	}
-	philo->next = set_philos(philo, 2, philos_nb, philo);
-	threads = malloc(sizeof(pthread_t) * philos_nb);
-	if (!threads)
-		return (1);
 	i = -1;
 	*philo->t_start = get_time();
 	if (philos_nb == 1)
@@ -453,6 +430,38 @@ int	main(int ac, char **av)
 	i = -1;
 	while (++i < philos_nb)
 		pthread_join(threads[i], NULL);
+}
+
+
+void	ft_free(t_philo *philo, pthread_t *threads, int philos_nb)
+{
 	free_philos(philo, philos_nb);
 	free(threads);
+}
+
+int	main(int ac, char **av)
+{
+	int				philos_nb;
+	t_philo			*philo;
+	pthread_t		*threads;
+
+	if (ac < 5 || ac > 6 || check_args(&av[1]) == 0)
+	{
+		ft_putstr("Error: arguments are invalids\n");
+		return (1);
+	}
+	philos_nb = (int) ft_atolli(av[1]);
+	philo = set_first_philo(ac, &av[2], philos_nb);
+	if (check_params(philo, philos_nb) == 0)
+	{
+		ft_putstr("Error: invalids params\n");
+		free_philos(philo, 1);
+		return (1);
+	}
+	philo->next = set_philos(philo, 2, philos_nb, philo);
+	threads = malloc(sizeof(pthread_t) * philos_nb);
+	if (!threads)
+		return (1);
+	threads_init(philo, threads, philos_nb);
+	ft_free(philo, threads, philos_nb);
 }
