@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 15:03:42 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 15:05:00 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 	i = -1;
 	while (++i < philos_nb)
 		pthread_join(threads[i], NULL);
+	ft_free(philo, threads, philos_nb);
 }
 
 int	main(int ac, char **av)
@@ -123,5 +124,4 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	threads_init(philo, threads, philos_nb);
-	ft_free(philo, threads, philos_nb);
 }
