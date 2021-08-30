@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 09:09:46 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:13:54 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,8 +389,7 @@ void	*run_one_philo(void	*v_philo)
 	t_philo			*philo;
 
 	philo = v_philo;
-	if (write_step(philo, " is thinking\n") == 0)
-		return (NULL);
+	write_step(philo, " is thinking\n");
 	if (check_end(philo) == 0)
 	{
 		pthread_mutex_lock(philo->r_fork);
