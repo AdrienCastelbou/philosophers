@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/28 10:03:57 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/30 09:09:46 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,30 @@ void	*monitoring(void	*v_philo)
 	return (NULL);
 }
 
+void	*run_one_philo(void	*v_philo)
+{
+	t_philo			*philo;
+
+	philo = v_philo;
+	if (write_step(philo, " is thinking\n") == 0)
+		return (NULL);
+	if (check_end(philo) == 0)
+	{
+		pthread_mutex_lock(philo->r_fork);
+		write_step(philo, " has taken a fork\n");
+		ft_usleep((philo->t_die + 1) * 1000);
+		pthread_mutex_unlock(philo->r_fork);
+	}
+	if (philo->t_must_eat == 0)
+	{
+		pthread_mutex_lock(philo->check_end);
+		*philo->must_eat -= 1;
+		pthread_mutex_unlock(philo->check_end);
+	}
+	return (NULL);
+
+}
+
 int	main(int ac, char **av)
 {
 	int				philos_nb;
@@ -411,11 +435,19 @@ int	main(int ac, char **av)
 		return (1);
 	i = -1;
 	*philo->t_start = get_time();
-	while (++i < philos_nb)
+	if (philos_nb == 1)
 	{
 		philo->t_satiate = get_time() - *philo->t_start;
-		pthread_create(&threads[i], NULL, &run_philo, philo);
-		philo = philo->next;
+		pthread_create(&threads[0], NULL, &run_one_philo, philo);
+	}
+	else
+	{
+		while (++i < philos_nb)
+		{
+			philo->t_satiate = get_time() - *philo->t_start;
+			pthread_create(&threads[i], NULL, &run_philo, philo);
+			philo = philo->next;
+		}
 	}
 	pthread_create(&monitor, NULL, &monitoring, philo);
 	pthread_join(monitor, NULL);
