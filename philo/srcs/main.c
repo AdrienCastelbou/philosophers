@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/26 11:36:56 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 15:05:00 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/31 17:14:28 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 	int			i;
 	pthread_t	monitor;
 
-	i = -1;
+	ft_putstr("Simulation started\n");
 	*philo->t_start = get_time();
 	if (philos_nb == 1)
 	{
@@ -81,14 +81,7 @@ void	threads_init(t_philo *philo, pthread_t *threads, int philos_nb)
 		pthread_create(&threads[0], NULL, &run_one_philo, philo);
 	}
 	else
-	{
-		while (++i < philos_nb)
-		{
-			philo->t_satiate = get_time() - *philo->t_start;
-			pthread_create(&threads[i], NULL, &run_philo, philo);
-			philo = philo->next;
-		}
-	}
+		launch_philos_thread(philo, threads, philos_nb);
 	pthread_create(&monitor, NULL, &monitoring, philo);
 	pthread_join(monitor, NULL);
 	i = -1;
