@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:25:00 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 10:26:08 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/31 10:50:39 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,16 @@ int	write_step(t_philo *philo, char *str)
 	return (1);
 }
 
+long long int	time_to_usleep(t_philo *philo, long long int t_usleep)
+{
+	long long int	time;
+
+	time = get_time();
+	if (philo->t_satiate + philo->t_die < time - *philo->t_start + t_usleep)
+		return ((philo->t_die + 1) * 1000);
+	return (t_usleep * 1000);
+}
+
 void	philo_routine(t_philo *philo,
 		pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
 {
@@ -42,7 +52,7 @@ void	philo_routine(t_philo *philo,
 	pthread_mutex_lock(&philo->check_death);
 	philo->t_satiate = get_time() - *philo->t_start;
 	pthread_mutex_unlock(&philo->check_death);
-	ft_usleep(philo->t_eat * 1000);
+	ft_usleep(time_to_usleep(philo, philo->t_eat));
 	pthread_mutex_unlock(first_fork);
 	pthread_mutex_unlock(second_fork);
 	pthread_mutex_lock(philo->check_end);
@@ -50,7 +60,7 @@ void	philo_routine(t_philo *philo,
 		philo->t_must_eat -= 1;
 	pthread_mutex_unlock(philo->check_end);
 	write_step(philo, " is sleeping\n");
-	ft_usleep(philo->t_sleep * 1000);
+	ft_usleep(time_to_usleep(philo, philo->t_sleep));
 	write_step(philo, " is thinking\n");
 }
 
