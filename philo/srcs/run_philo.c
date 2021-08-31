@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:25:00 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/31 10:54:39 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/31 13:26:41 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	write_step(t_philo *philo, char *str)
 	}
 	time = get_time() - *philo->t_start;
 	ft_putnbr(time);
-	ft_putchar(' ');
+	ft_putstr("ms ");
 	ft_putnbr(philo->id);
 	ft_putstr(str);
 	pthread_mutex_unlock(philo->write);
