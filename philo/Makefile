@@ -1,4 +1,4 @@
-SRCS	=	$(addprefix srcs/, main.c free.c run_philo.c set_philos.c utils.c utils2.c)
+SRCS	=	$(addprefix srcs/, main.c ft_usleep.c free.c run_philo.c set_philos.c utils.c utils2.c)
 
 OBJS	=	$(SRCS:.c=.o)
 

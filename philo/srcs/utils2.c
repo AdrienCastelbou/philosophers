@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:28:06 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/30 15:02:53 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/31 10:56:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,6 @@ long long int	get_time(void)
 	gettimeofday(&current_time, NULL);
 	time = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
 	return (time);
-}
-
-void	ft_usleep(long long int delay)
-{
-	long long int	goal;
-
-	goal = get_time() + (delay / 1000);
-	while (get_time() < goal)
-		usleep(100);
 }
 
 int	check_args(char **args)

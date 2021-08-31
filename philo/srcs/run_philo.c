@@ -6,7 +6,7 @@
 /*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/30 10:25:00 by acastelb          #+#    #+#             */
-/*   Updated: 2021/08/31 10:50:39 by acastelb         ###   ########.fr       */
+/*   Updated: 2021/08/31 10:54:39 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,6 @@ int	write_step(t_philo *philo, char *str)
 	ft_putstr(str);
 	pthread_mutex_unlock(philo->write);
 	return (1);
-}
-
-long long int	time_to_usleep(t_philo *philo, long long int t_usleep)
-{
-	long long int	time;
-
-	time = get_time();
-	if (philo->t_satiate + philo->t_die < time - *philo->t_start + t_usleep)
-		return ((philo->t_die + 1) * 1000);
-	return (t_usleep * 1000);
 }
 
 void	philo_routine(t_philo *philo,

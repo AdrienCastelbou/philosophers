@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: acastelb <acastelb@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/08/31 10:58:08 by acastelb          #+#    #+#             */
+/*   Updated: 2021/08/31 10:58:10 by acastelb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 # include <stdio.h>
@@ -58,4 +70,5 @@ void			threads_init(t_philo *philo, pthread_t *threads,
 					int philos_nb);
 void			ft_free(t_philo *philo, pthread_t *threads, int philos_nb);
 int				check_philos(t_philo *philo, int nb_philos);
+long long int	time_to_usleep(t_philo *philo, long long int t_usleep);
 #endif
